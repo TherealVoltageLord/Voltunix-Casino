@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe | Voltunix Casino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --secondary-light: #ff2bbd;
+            --dark: #1a1a2e;
+            --darker: #121223;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            font-size: 1.2rem;
+            color: var(--warning);
+        }
+
+        .user-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-level {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .betting-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .bet-amount {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .difficulty-select {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .place-bet {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .multipliers {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .multiplier-chip {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 2rem 0;
+        }
+
+        .cell {
+            background: var(--card-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+
+        .cell:hover {
+            border-color: var(--primary);
+        }
+
+        .cell.x {
+            color: var(--primary);
+        }
+
+        .cell.o {
+            color: var(--secondary);
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            min-height: 2.5rem;
+        }
+
+        .win-animation {
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+            
+            .bet-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-controls {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Voltunix Casino</span>
+        </div>
+        <div class="nav-controls">
+            <button class="nav-btn" id="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </button>
+            <div class="user-info">
+                <div class="user-badge" id="user-badge"><i class="fas fa-egg"></i></div>
+                <div class="user-balance" id="user-balance">0 Voltz</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="player-header">
+            <h1><i class="fas fa-times"></i> Tic Tac Toe</h1>
+            <div class="player-level" id="player-level">Lvl 1 Rookie</div>
+        </div>
+
+        <div class="betting-panel">
+            <div class="bet-controls">
+                <input type="number" id="bet-amount" class="bet-amount" placeholder="Bet amount" min="1">
+                <select id="difficulty" class="difficulty-select">
+                    <option value="easy">Easy (1.5x)</option>
+                    <option value="medium">Medium (2x)</option>
+                    <option value="hard">Hard (3x)</option>
+                    <option value="extreme">Extreme (10x)</option>
+                </select>
+                <button class="place-bet" id="place-bet">Place Bet</button>
+            </div>
+            <div class="multipliers">
+                <div class="multiplier-chip">Easy: 1.5x (60% win chance)</div>
+                <div class="multiplier-chip">Medium: 2x (40% win chance)</div>
+                <div class="multiplier-chip">Hard: 3x (20% win chance)</div>
+                <div class="multiplier-chip">Extreme: 10x (8% win chance)</div>
+            </div>
+        </div>
+
+        <div class="game-container" id="game-container">
+            <div class="board" id="board"></div>
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.loadCurrentUser();
+            }
+
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
+
+            saveUser() {
+                if (this.currentUser) {
+                    localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+                    const index = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (index !== -1) {
+                        this.users[index] = this.currentUser;
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            updateCoins(amount) {
+                if (!this.currentUser) return 0;
+                this.currentUser.coins += amount;
+                this.saveUser();
+                return this.currentUser.coins;
+            }
+
+            updatePoints(amount) {
+                if (!this.currentUser) return 0;
+                this.currentUser.points += amount;
+                this.saveUser();
+                return this.currentUser.points;
+            }
+        }
+
+        const LEVELS = [
+            { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+            { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+            { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+            { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+            { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+            { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+        ];
+
+        const userState = new UserState();
+        let currentPlayer = 'X';
+        let gameActive = false;
+        let betAmount = 0;
+        let difficulty = 'easy';
+        const multipliers = {
+            easy: 1.5,
+            medium: 2,
+            hard: 3,
+            extreme: 10
+        };
+        const winProbabilities = {
+            easy: 0.6,
+            medium: 0.4,
+            hard: 0.2,
+            extreme: 0.08
+        };
+
+        const userBadge = document.getElementById('user-badge');
+        const userBalance = document.getElementById('user-balance');
+        const playerLevel = document.getElementById('player-level');
+        const betAmountInput = document.getElementById('bet-amount');
+        const difficultySelect = document.getElementById('difficulty');
+        const placeBetBtn = document.getElementById('place-bet');
+        const gameContainer = document.getElementById('game-container');
+        const board = document.getElementById('board');
+        const statusDisplay = document.getElementById('status');
+        const toast = document.getElementById('toast');
+        const backBtn = document.getElementById('back-btn');
+
+        function initGame() {
+            if (!userState.currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            updateUserInfo();
+            board.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleCellClick(i));
+                board.appendChild(cell);
+            }
+
+            placeBetBtn.addEventListener('click', placeBet);
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+        }
+
+        function updateUserInfo() {
+            const user = userState.currentUser;
+            userBalance.textContent = `${user.coins || 0} Voltz`;
+            
+            const currentLevel = LEVELS.reduce((acc, level, index) => {
+                return (user.points || 0) >= level.min ? { ...level, number: index + 1 } : acc;
+            }, { number: 1, title: "Rookie", badge: "fa-egg", next: 2000 });
+            
+            playerLevel.textContent = `Lvl ${currentLevel.number} ${currentLevel.title}`;
+            userBadge.innerHTML = `<i class="fas ${currentLevel.badge}"></i>`;
+        }
+
+        function placeBet() {
+            betAmount = parseInt(betAmountInput.value);
+            difficulty = difficultySelect.value;
+
+            if (!betAmount || betAmount < 1) {
+                showToast('Please enter a valid bet amount', 'error');
+                return;
+            }
+
+            if (betAmount > userState.currentUser.coins) {
+                showToast('Not enough Voltz', 'error');
+                return;
+            }
+
+            userState.updateCoins(-betAmount);
+            updateUserInfo();
+            
+            gameActive = true;
+            gameContainer.style.display = 'flex';
+            statusDisplay.textContent = `Your turn (X) - Playing for ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz`;
+            showToast(`Bet placed! Playing for ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz`);
+        }
+
+        function handleCellClick(index) {
+            if (!gameActive || board.children[index].textContent !== '') return;
+
+            board.children[index].textContent = currentPlayer;
+            board.children[index].classList.add(currentPlayer.toLowerCase());
+
+            if (checkWin(currentPlayer)) {
+                endGame(true);
+                return;
+            }
+
+            if (checkDraw()) {
+                endGame(false, true);
+                return;
+            }
+
+            currentPlayer = 'O';
+            statusDisplay.textContent = `AI thinking...`;
+            
+            setTimeout(() => {
+                makeAIMove();
+                if (gameActive) {
+                    currentPlayer = 'X';
+                    statusDisplay.textContent = `Your turn (X) - Playing for ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz`;
+                }
+            }, 500);
+        }
+
+        function makeAIMove() {
+            if (!gameActive) return;
+
+            let moveIndex;
+            const randomChance = Math.random();
+            const boardState = [...board.children].map(cell => cell.textContent);
+
+            if (difficulty === 'extreme' || (difficulty === 'hard' && randomChance > 0.3)) {
+                moveIndex = findBestMove(boardState, 'O');
+            } 
+            else if (difficulty === 'medium' || (difficulty === 'easy' && randomChance > 0.7)) {
+                moveIndex = randomChance > 0.5 ? findBestMove(boardState, 'O') : getRandomMove(boardState);
+            }
+            else {
+                moveIndex = getRandomMove(boardState);
+            }
+
+            if (moveIndex === -1) return;
+
+            const cell = board.children[moveIndex];
+            cell.textContent = 'O';
+            cell.classList.add('o');
+
+            if (checkWin('O')) {
+                endGame(false);
+                return;
+            }
+
+            if (checkDraw()) {
+                endGame(false, true);
+            }
+        }
+
+        function getRandomMove(boardState) {
+            const availableCells = boardState
+                .map((cell, index) => cell === '' ? index : -1)
+                .filter(index => index !== -1);
+            
+            if (availableCells.length === 0) return -1;
+            return availableCells[Math.floor(Math.random() * availableCells.length)];
+        }
+
+        function findBestMove(boardState, player) {
+            const boardArray = boardState.map(cell => cell === '' ? null : cell);
+            
+            for (let i = 0; i < 9; i++) {
+                if (boardArray[i] === null) {
+                    boardArray[i] = player;
+                    if (checkWinOnBoard(boardArray, player)) {
+                        boardArray[i] = null;
+                        return i;
+                    }
+                    boardArray[i] = null;
+                }
+            }
+            
+            const opponent = player === 'X' ? 'O' : 'X';
+            for (let i = 0; i < 9; i++) {
+                if (boardArray[i] === null) {
+                    boardArray[i] = opponent;
+                    if (checkWinOnBoard(boardArray, opponent)) {
+                        boardArray[i] = null;
+                        return i;
+                    }
+                    boardArray[i] = null;
+                }
+            }
+            
+            if (boardArray[4] === null) return 4;
+            
+            const corners = [0, 2, 6, 8];
+            const availableCorners = corners.filter(index => boardArray[index] === null);
+            if (availableCorners.length > 0) {
+                return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+            }
+            
+            const edges = [1, 3, 5, 7];
+            const availableEdges = edges.filter(index => boardArray[index] === null);
+            if (availableEdges.length > 0) {
+                return availableEdges[Math.floor(Math.random() * availableEdges.length)];
+            }
+            
+            return -1;
+        }
+
+        function checkWinOnBoard(boardArray, player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            return winPatterns.some(pattern => {
+                return pattern.every(index => {
+                    return boardArray[index] === player;
+                });
+            });
+        }
+
+        function checkWin(player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            return winPatterns.some(pattern => {
+                const win = pattern.every(index => {
+                    return board.children[index].textContent === player;
+                });
+                
+                if (win) {
+                    pattern.forEach(index => {
+                        board.children[index].classList.add('win-animation');
+                    });
+                }
+                
+                return win;
+            });
+        }
+
+        function checkDraw() {
+            return [...board.children].every(cell => {
+                return cell.textContent !== '';
+            });
+        }
+
+        function endGame(playerWon, isDraw = false) {
+            gameActive = false;
+            const gameKey = 'tic-tac-toe';
+
+            if (isDraw) {
+                userState.updateCoins(betAmount);
+                statusDisplay.textContent = `Draw! ${betAmount} Voltz refunded`;
+                showToast(`Game ended in draw! ${betAmount} Voltz refunded`);
+            } else if (playerWon) {
+                const winnings = Math.floor(betAmount * multipliers[difficulty]);
+                userState.updateCoins(winnings);
+                userState.updatePoints(difficulty === 'extreme' ? 50 : 10);
+                
+                userState.currentUser.gamesPlayed[gameKey].wins++;
+                userState.currentUser.gamesPlayed[gameKey].totalWon += winnings;
+                
+                statusDisplay.textContent = `You won ${winnings} Voltz!`;
+                showToast(`You won ${winnings} Voltz!`, 'success');
+            } else {
+                userState.currentUser.gamesPlayed[gameKey].losses++;
+                statusDisplay.textContent = `AI wins!`;
+                showToast('AI wins! Better luck next time', 'error');
+            }
+
+            userState.currentUser.gamesPlayed[gameKey].totalWagered += betAmount;
+            userState.saveUser();
+            updateUserInfo();
+
+            setTimeout(() => {
+                [...board.children].forEach(cell => {
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                });
+                gameContainer.style.display = 'none';
+            }, 3000);
+        }
+
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
