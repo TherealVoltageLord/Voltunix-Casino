@@ -266,23 +266,103 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Initialize users database if it doesn't exist
-        if (!localStorage.getItem('voltx_users')) {
-            localStorage.setItem('voltx_users', JSON.stringify([]));
+        const CONFIG = {
+            INITIAL_COINS: 1000,
+            INITIAL_POINTS: 500,
+            DAILY_REWARD_BASE: 100,
+            LEVELS: [
+                { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+                { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+                { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+                { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+                { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+                { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+            ]
+        };
+
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.loadCurrentUser();
+            }
+
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            register(username, password) {
+                if (this.users.some(u => u.username === username)) {
+                    return false;
+                }
+
+                const newUser = {
+                    id: Date.now().toString(),
+                    username,
+                    password,
+                    coins: CONFIG.INITIAL_COINS,
+                    points: CONFIG.INITIAL_POINTS,
+                    streak: 0,
+                    lastClaim: null,
+                    gamesPlayed: {
+                        'tic-tac-toe': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'memory': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'coin-flip': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'aviator': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'rps': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 }
+                    },
+                    achievements: [],
+                    settings: {
+                        sound: true,
+                        animations: true,
+                        theme: 'dark'
+                    },
+                    createdAt: new Date().toISOString()
+                };
+
+                this.users.push(newUser);
+                this.currentUser = newUser;
+                localStorage.setItem('voltx_currentUser', JSON.stringify(newUser));
+                this.saveAllUsers();
+                return true;
+            }
+
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
         }
 
-        // DOM Elements
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        
+        const userState = new UserState();
         const registerForm = document.getElementById('register-form');
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const togglePasswordBtn = document.getElementById('toggle-password');
         const toggleConfirmPasswordBtn = document.getElementById('toggle-confirm-password');
-        const usernameError = document.getElementById('username-error');
-        const passwordError = document.getElementById('password-error');
-        const confirmPasswordError = document.getElementById('confirm-password-error');
 
-        // Password validation rules
         const passwordRules = {
             length: { regex: /.{8,}/, element: document.getElementById('rule-length') },
             uppercase: { regex: /[A-Z]/, element: document.getElementById('rule-uppercase') },
@@ -290,7 +370,6 @@
             special: { regex: /[^A-Za-z0-9]/, element: document.getElementById('rule-special') }
         };
 
-        // Toggle password visibility
         togglePasswordBtn.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
@@ -303,16 +382,10 @@
             toggleConfirmPasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
         });
 
-        // Real-time password validation
-        passwordInput.addEventListener('input', validatePassword);
-        confirmPasswordInput.addEventListener('input', validateConfirmPassword);
-        usernameInput.addEventListener('input', validateUsername);
-
         function validatePassword() {
             const password = passwordInput.value;
             let isValid = true;
             
-            // Check each password rule
             for (const [rule, { regex, element }] of Object.entries(passwordRules)) {
                 const ruleValid = regex.test(password);
                 element.classList.toggle('rule-valid', ruleValid);
@@ -324,7 +397,6 @@
                 if (!ruleValid) isValid = false;
             }
             
-            // Update confirm password validation if needed
             if (confirmPasswordInput.value) {
                 validateConfirmPassword();
             }
@@ -339,11 +411,11 @@
             
             if (confirmPassword && password !== confirmPassword) {
                 confirmPasswordInput.classList.add('input-error');
-                confirmPasswordError.textContent = 'Passwords do not match';
+                document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
                 isValid = false;
             } else {
                 confirmPasswordInput.classList.remove('input-error');
-                confirmPasswordError.textContent = '';
+                document.getElementById('confirm-password-error').textContent = '';
             }
             
             return isValid;
@@ -355,17 +427,16 @@
             
             if (username.length < 3) {
                 usernameInput.classList.add('input-error');
-                usernameError.textContent = 'Username must be at least 3 characters';
+                document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
                 isValid = false;
             } else {
                 usernameInput.classList.remove('input-error');
-                usernameError.textContent = '';
+                document.getElementById('username-error').textContent = '';
             }
             
             return isValid;
         }
 
-        // Registration form submission
         registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -373,7 +444,6 @@
             const password = passwordInput.value;
             const confirmPassword = confirmPasswordInput.value;
             
-            // Validate all fields
             const isUsernameValid = validateUsername();
             const isPasswordValid = validatePassword();
             const isConfirmPasswordValid = validateConfirmPassword();
@@ -383,65 +453,18 @@
                 return;
             }
             
-            // Check if user already exists
-            const users = JSON.parse(localStorage.getItem('voltx_users'));
-            const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
-            
-            if (userExists) {
+            if (userState.register(username, password)) {
+                showToast(`Registration successful! ${CONFIG.INITIAL_COINS} coins and ${CONFIG.INITIAL_POINTS} points awarded`, 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } else {
                 usernameInput.classList.add('input-error');
-                usernameError.textContent = 'Username already taken!';
+                document.getElementById('username-error').textContent = 'Username already taken!';
                 showToast('Username already taken!', 'error');
-                return;
             }
-            
-            // Create new user with initial data matching dashboard
-            const newUser = {
-                id: Date.now().toString(),
-                username,
-                password, // Note: In production, you should hash passwords
-                coins: 1000, // Starting coins
-                points: 0,
-                streak: 0,
-                lastClaim: null,
-                gamesPlayed: {
-                    'tic-tac-toe': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
-                    'memory': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
-                    'coin-flip': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
-                    'aviator': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
-                    'rps': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 }
-                },
-                achievements: [],
-                settings: {
-                    sound: true,
-                    animations: true,
-                    theme: 'dark'
-                },
-                createdAt: new Date().toISOString()
-            };
-            
-            // Save user
-            users.push(newUser);
-            localStorage.setItem('voltx_users', JSON.stringify(users));
-            localStorage.setItem('voltx_currentUser', JSON.stringify(newUser));
-            
-            showToast('Registration successful! 1000 coins added', 'success');
-            
-            // Redirect to dashboard after 1.5 seconds
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
         });
 
-        // Toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast';
-            toast.classList.add(type, 'show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+        if (userState.currentUser) {
+            window.location.href = 'dashboard.html';
         }
     </script>
 </body>
