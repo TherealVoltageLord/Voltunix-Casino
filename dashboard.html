@@ -1352,17 +1352,603 @@ class VoltunixApp {
 
         // Initialize UI
         this.ui.updateUserInfo();
+// Configuration Constants
+const CONFIG = {
+    DAILY_REWARD_BASE: 100,
+    DAILY_REWARD_MULTIPLIER: 10,
+    LEVELS: [
+        { 
+            min: 0, 
+            title: "Rookie", 
+            badge: "fa-egg", 
+            next: 2000, 
+            bonus: "5% deposit bonus",
+            color: "#6c757d"
+        },
+        { 
+            min: 2000, 
+            title: "Sergeant", 
+            badge: "fa-star", 
+            next: 5000, 
+            bonus: "Daily +10 Voltz",
+            color: "#6e00ff"
+        },
+        { 
+            min: 5000, 
+            title: "Captain", 
+            badge: "fa-medal", 
+            next: 9000, 
+            bonus: "Weekly free spin",
+            color: "#00b894"
+        },
+        { 
+            min: 9000, 
+            title: "Major", 
+            badge: "fa-trophy", 
+            next: 15000, 
+            bonus: "15% deposit bonus",
+            color: "#ff00a8"
+        },
+        { 
+            min: 15000, 
+            title: "Colonel", 
+            badge: "fa-crown", 
+            next: 25000, 
+            bonus: "Daily +50 Voltz",
+            color: "#fdcb6e"
+        },
+        { 
+            min: 25000, 
+            title: "Legend", 
+            badge: "fa-trophy-star", 
+            next: Infinity, 
+            bonus: "VIP treatment",
+            color: "#dc3545"
+        }
+    ],
+    GAMES: {
+        'tictactoe': {
+            name: "Tic Tac Toe",
+            icon: "fa-times",
+            pointsPerWin: 50,
+            minBet: 10,
+            maxBet: 500
+        },
+        'memory': {
+            name: "Memory Game",
+            icon: "fa-brain",
+            pointsPerWin: 30,
+            minBet: 5,
+            maxBet: 200
+        },
+        'coinflip': {
+            name: "Coin Flip",
+            icon: "fa-coins",
+            pointsPerWin: 10,
+            minBet: 1,
+            maxBet: 1000
+        },
+        'aviator': {
+            name: "Aviator",
+            icon: "fa-plane",
+            pointsPerWin: 20,
+            minBet: 5,
+            maxBet: 500
+        },
+        'rps': {
+            name: "Rock Paper Scissors",
+            icon: "fa-hand-scissors",
+            pointsPerWin: 15,
+            minBet: 2,
+            maxBet: 300
+        }
+    }
+};
+
+// State Management
+class UserState {
+    constructor() {
+        this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+        this.loadUser();
+    }
+
+    loadUser() {
+        const currentUserData = localStorage.getItem('voltx_currentUser');
+        if (currentUserData) {
+            this.currentUser = JSON.parse(currentUserData);
+            
+            // Sync with main users array
+            const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+            if (userIndex !== -1) {
+                // Merge changes from currentUser to users array
+                this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                this.currentUser = this.users[userIndex];
+                this.saveAllUsers();
+            }
+        } else {
+            this.currentUser = this.createNewUser();
+        }
+        
+        this.initializeUserData();
+        this.saveUser();
+    }
+
+    createNewUser() {
+        const newUser = {
+            id: Date.now().toString(),
+            username: "Guest" + Math.floor(Math.random() * 10000),
+            coins: 1000,
+            points: 0,
+            streak: 0,
+            lastClaim: null,
+            gamesPlayed: {
+                'tictactoe': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                'memory': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                'coinflip': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                'aviator': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                'rps': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 }
+            },
+            achievements: [],
+            settings: {
+                sound: true,
+                animations: true,
+                theme: 'dark'
+            },
+            createdAt: new Date().toISOString()
+        };
+        
+        this.users.push(newUser);
+        this.saveAllUsers();
+        return newUser;
+    }
+
+    initializeUserData() {
+        Object.keys(CONFIG.GAMES).forEach(gameId => {
+            if (!this.currentUser.gamesPlayed[gameId]) {
+                this.currentUser.gamesPlayed[gameId] = {
+                    wins: 0,
+                    losses: 0,
+                    totalWagered: 0,
+                    totalWon: 0
+                };
+            }
+        });
+
+        if (!this.currentUser.achievements) this.currentUser.achievements = [];
+        if (!this.currentUser.settings) {
+            this.currentUser.settings = {
+                sound: true,
+                animations: true,
+                theme: 'dark'
+            };
+        }
+    }
+
+    saveUser() {
+        localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+        
+        const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+        if (userIndex !== -1) {
+            this.users[userIndex] = this.currentUser;
+            this.saveAllUsers();
+        }
+    }
+
+    saveAllUsers() {
+        localStorage.setItem('voltx_users', JSON.stringify(this.users));
+    }
+
+    updateCoins(amount) {
+        this.currentUser.coins += amount;
+        this.saveUser();
+        return this.currentUser.coins;
+    }
+
+    updatePoints(amount) {
+        this.currentUser.points += amount;
+        this.saveUser();
+        return this.currentUser.points;
+    }
+
+    claimDailyReward() {
+        const now = new Date();
+        const currentLevel = this.getCurrentLevel();
+        const rewardAmount = CONFIG.DAILY_REWARD_BASE + (currentLevel.number * CONFIG.DAILY_REWARD_MULTIPLIER);
+        
+        const today = now.toDateString();
+        const lastClaimDate = this.currentUser.lastClaim ? new Date(this.currentUser.lastClaim).toDateString() : null;
+        
+        if (lastClaimDate === today) {
+            return { success: false, message: "You've already claimed your reward today" };
+        } else if (!lastClaimDate || new Date(lastClaimDate).toDateString() === new Date(now - 86400000).toDateString()) {
+            this.currentUser.streak = (this.currentUser.streak || 0) + 1;
+        } else {
+            this.currentUser.streak = 1;
+        }
+        
+        this.currentUser.lastClaim = now.toISOString();
+        this.updateCoins(rewardAmount);
+        
+        return { 
+            success: true, 
+            amount: rewardAmount, 
+            streak: this.currentUser.streak 
+        };
+    }
+
+    getCurrentLevel() {
+        return CONFIG.LEVELS.reduce((acc, level, index) => {
+            return this.currentUser.points >= level.min ? { ...level, number: index + 1 } : acc;
+        }, { ...CONFIG.LEVELS[0], number: 1 });
+    }
+
+    getLevelProgress() {
+        const currentLevel = this.getCurrentLevel();
+        const nextLevel = CONFIG.LEVELS[currentLevel.number] || { min: Infinity };
+        const pointsToNext = currentLevel.next - currentLevel.min;
+        const userProgress = this.currentUser.points - currentLevel.min;
+        const progressPercent = (userProgress / pointsToNext) * 100;
+        
+        return {
+            currentLevel,
+            nextLevel,
+            pointsToNext,
+            userProgress,
+            progressPercent
+        };
+    }
+
+    logout() {
+        this.saveUser();
+        localStorage.removeItem('voltx_currentUser');
+        return true;
+    }
+}
+
+// UI Components
+class DashboardUI {
+    constructor(userState) {
+        this.userState = userState;
+        this.toastTimeout = null;
+        this.countdownInterval = null;
+        this.initElements();
+        this.bindEvents();
+    }
+
+    initElements() {
+        this.elements = {
+            userAvatar: document.getElementById('user-avatar'),
+            username: document.getElementById('username'),
+            userBalance: document.getElementById('user-balance'),
+            logoutBtn: document.getElementById('logout-btn'),
+            userPoints: document.getElementById('user-points'),
+            userLevel: document.getElementById('user-level'),
+            userStreak: document.getElementById('user-streak'),
+            pointsProgress: document.getElementById('points-progress'),
+            levelProgress: document.getElementById('level-progress'),
+            pointsProgressText: document.getElementById('points-progress-text'),
+            levelProgressText: document.getElementById('level-progress-text'),
+            levelTooltip: document.getElementById('level-tooltip'),
+            claimBtn: document.getElementById('claim-btn'),
+            tttLeaderboard: document.getElementById('ttt-leaderboard'),
+            memoryLeaderboard: document.getElementById('memory-leaderboard'),
+            coinflipLeaderboard: document.getElementById('coinflip-leaderboard'),
+            toast: document.getElementById('toast'),
+            gamesContainer: document.getElementById('games-container')
+        };
+    }
+
+    bindEvents() {
+        this.elements.logoutBtn.addEventListener('click', () => this.handleLogout());
+        this.elements.claimBtn.addEventListener('click', () => this.handleDailyRewardClaim());
+        
+        document.querySelectorAll('.game-card').forEach(card => {
+            const gameId = card.getAttribute('data-game');
+            const playBtn = card.querySelector('.play-btn');
+            
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.play-btn')) {
+                    this.navigateToGame(gameId);
+                }
+            });
+            
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.navigateToGame(gameId);
+            });
+        });
+    }
+
+    updateUserInfo() {
+        const user = this.userState.currentUser;
+        
+        this.elements.userAvatar.textContent = user.username.charAt(0).toUpperCase();
+        this.elements.username.textContent = user.username;
+        this.elements.userBalance.textContent = user.coins.toLocaleString();
+        this.elements.userPoints.textContent = user.points.toLocaleString();
+        
+        const levelProgress = this.userState.getLevelProgress();
+        const currentLevel = levelProgress.currentLevel;
+        const nextLevel = levelProgress.nextLevel;
+        
+        this.elements.userLevel.textContent = `${currentLevel.number} - ${currentLevel.title}`;
+        this.elements.userLevel.style.color = currentLevel.color;
+        
+        this.elements.levelProgressText.textContent = 
+            `${user.points.toLocaleString()}/${currentLevel.next.toLocaleString()} points (${Math.round(levelProgress.progressPercent)}%)`;
+        
+        this.elements.pointsProgressText.textContent = 
+            `${(levelProgress.pointsToNext - levelProgress.userProgress).toLocaleString()} points to next level`;
+        
+        this.elements.levelTooltip.innerHTML = this.generateLevelTooltip(currentLevel, nextLevel, levelProgress);
+        
+        this.elements.userStreak.textContent = `${user.streak || 0} days`;
+        
+        this.elements.pointsProgress.style.width = `${Math.min(100, levelProgress.progressPercent)}%`;
+        this.elements.levelProgress.style.width = `${levelProgress.progressPercent}%`;
+        this.elements.levelProgress.style.background = 
+            `linear-gradient(to right, ${currentLevel.color}, ${nextLevel.color || currentLevel.color})`;
+    }
+
+    generateLevelTooltip(currentLevel, nextLevel, levelProgress) {
+        return `
+            <div style="color: ${currentLevel.color}; font-weight: bold; margin-bottom: 5px;">
+                <i class="fas ${currentLevel.badge}"></i> ${currentLevel.title} (Level ${currentLevel.number})
+            </div>
+            <div style="margin-bottom: 10px;">
+                <div>Points: ${this.userState.currentUser.points.toLocaleString()}/${currentLevel.next.toLocaleString()}</div>
+                <div>Progress: ${Math.round(levelProgress.progressPercent)}%</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+                <div style="font-weight: bold; margin-bottom: 3px;">Current Benefits:</div>
+                <div><i class="fas fa-check-circle" style="color: ${currentLevel.color};"></i> ${currentLevel.bonus}</div>
+            </div>
+            ${nextLevel.min < Infinity ? `
+            <div style="background: rgba(110,0,255,0.1); padding: 8px; border-radius: 6px;">
+                <div style="font-weight: bold; margin-bottom: 3px;">Next Level (${nextLevel.title}):</div>
+                <div><i class="fas fa-arrow-circle-up" style="color: ${nextLevel.color};"></i> ${nextLevel.bonus}</div>
+            </div>
+            ` : `
+            <div style="background: rgba(220,53,69,0.1); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-trophy" style="color: gold;"></i> You've reached the highest level!
+            </div>
+            `}
+        `;
+    }
+
+    setupDailyReward() {
+        const now = new Date();
+        
+        if (this.userState.currentUser.lastClaim) {
+            const lastClaim = new Date(this.userState.currentUser.lastClaim);
+            const hoursSinceClaim = (now - lastClaim) / (1000 * 60 * 60);
+            
+            if (hoursSinceClaim < 24) {
+                this.elements.claimBtn.disabled = true;
+                const secondsRemaining = Math.floor((24 * 60 * 60) - (hoursSinceClaim * 60 * 60));
+                this.startRewardCountdown(secondsRemaining);
+            }
+        }
+    }
+
+    startRewardCountdown(seconds) {
+        let remaining = seconds;
+        
+        const updateButtonText = () => {
+            const hours = Math.floor(remaining / 3600);
+            const minutes = Math.floor((remaining % 3600) / 60);
+            const secs = remaining % 60;
+            
+            this.elements.claimBtn.innerHTML = 
+                `<i class="fas fa-clock"></i> ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        };
+
+        updateButtonText();
+        
+        this.countdownInterval = setInterval(() => {
+            remaining--;
+            updateButtonText();
+            
+            if (remaining <= 0) {
+                clearInterval(this.countdownInterval);
+                this.elements.claimBtn.disabled = false;
+                this.elements.claimBtn.innerHTML = '<i class="fas fa-gift"></i> Claim Now';
+            }
+        }, 1000);
+    }
+
+    renderLeaderboards() {
+        const leaderboardData = {
+            tictactoe: [
+                { name: "XMaster", points: 12500, avatar: "X" },
+                { name: "TicTacPro", points: 9800, avatar: "T" },
+                { name: "GridKing", points: 7500, avatar: "G" }
+            ],
+            memory: [
+                { name: "MemoryMaster", points: 15000, avatar: "M" },
+                { name: "CardWhiz", points: 11000, avatar: "C" },
+                { name: "RecallExpert", points: 8000, avatar: "R" }
+            ],
+            coinflip: [
+                { name: "LuckyCoin", points: 18000, avatar: "L" },
+                { name: "HeadsOrTails", points: 12000, avatar: "H" },
+                { name: "FlipChamp", points: 9500, avatar: "F" }
+            ]
+        };
+
+        this.renderLeaderboard(this.elements.tttLeaderboard, leaderboardData.tictactoe);
+        this.renderLeaderboard(this.elements.memoryLeaderboard, leaderboardData.memory);
+        this.renderLeaderboard(this.elements.coinflipLeaderboard, leaderboardData.coinflip);
+    }
+
+    renderLeaderboard(container, data) {
+        container.innerHTML = '';
+        
+        data.forEach((entry, index) => {
+            const entryElement = document.createElement('div');
+            entryElement.className = `leaderboard-entry rank-${index + 1}`;
+            
+            entryElement.innerHTML = `
+                <div class="entry-rank">${index + 1}</div>
+                <div class="entry-avatar">${entry.avatar}</div>
+                <div class="entry-details">
+                    <div class="entry-name">${entry.name}</div>
+                    <div class="entry-points">${entry.points.toLocaleString()} points</div>
+                </div>
+            `;
+            
+            container.appendChild(entryElement);
+        });
+    }
+
+    renderGames() {
+        this.elements.gamesContainer.innerHTML = '';
+        
+        Object.entries(CONFIG.GAMES).forEach(([gameId, gameData]) => {
+            const userStats = this.userState.currentUser.gamesPlayed[gameId] || { wins: 0, losses: 0 };
+            const winRate = userStats.wins + userStats.losses > 0 
+                ? Math.round((userStats.wins / (userStats.wins + userStats.losses)) * 100) 
+                : 0;
+            
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+            gameCard.setAttribute('data-game', gameId);
+            
+            gameCard.innerHTML = `
+                <div class="game-image">
+                    <i class="fas ${gameData.icon}"></i>
+                    ${gameId === 'tic-tac-toe' || gameId === 'aviator' || gameId === 'rps' ? 
+                        '<div class="game-badge">New</div>' : ''}
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">
+                        <i class="fas ${gameData.icon}"></i> ${gameData.name}
+                    </h3>
+                    <p class="game-desc">
+                        ${this.getGameDescription(gameId)}
+                    </p>
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-trophy"></i> ${userStats.wins} Wins
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-percentage"></i> ${winRate}% Win Rate
+                        </div>
+                    </div>
+                    <div class="level-badge">
+                        <i class="fas fa-star"></i>
+                        <span>+${gameData.pointsPerWin} points per win</span>
+                    </div>
+                    <button class="play-btn">
+                        <i class="fas fa-play"></i> Play Now
+                    </button>
+                </div>
+            `;
+            
+            this.elements.gamesContainer.appendChild(gameCard);
+            
+            const playBtn = gameCard.querySelector('.play-btn');
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.navigateToGame(gameId);
+            });
+            
+            gameCard.addEventListener('click', (e) => {
+                if (!e.target.closest('.play-btn')) {
+                    this.navigateToGame(gameId);
+                }
+            });
+        });
+    }
+
+    getGameDescription(gameId) {
+        const descriptions = {
+            'tic-tac-toe': 'Classic X vs O with Voltunix twist! Win up to 20x your bet in Extreme mode.',
+            'memory': 'Test your memory with electrifying cards. Match pairs to win coins!',
+            'coin-flip': 'Simple 50/50 chance game with 2x payout. Perfect for quick wins!',
+            'aviator': 'Watch the plane take off and cash out before it flies away! High risk, high reward.',
+            'rps': 'Classic RPS with a twist. Win 3x your bet with special bonus rounds!'
+        };
+        return descriptions[gameId] || 'An exciting game with great rewards!';
+    }
+
+    handleDailyRewardClaim() {
+        const result = this.userState.claimDailyReward();
+        
+        if (result.success) {
+            this.updateUserInfo();
+            this.showToast(`Daily reward claimed! +${result.amount} Voltz (${result.streak}-day streak)`, "success");
+            this.elements.claimBtn.disabled = true;
+            this.startRewardCountdown(24 * 60 * 60);
+        } else {
+            this.showToast(result.message, "error");
+        }
+    }
+
+    handleLogout() {
+        this.userState.logout();
+        this.showToast('Logged out successfully');
+        setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+
+    navigateToGame(gameId) {
+        if (!this.userState.currentUser) {
+            this.showToast('Please log in to play games', 'error');
+            return;
+        }
+        
+        this.showToast(`Loading ${CONFIG.GAMES[gameId].name}...`, 'info');
+        window.location.href = `${gameId}.html`;
+    }
+
+    showToast(message, type = 'info') {
+        const toast = this.elements.toast;
+        toast.textContent = message;
+        toast.className = 'toast show';
+        
+        const typeStyles = {
+            success: { bg: 'var(--success)', text: 'white' },
+            error: { bg: 'var(--danger)', text: 'white' },
+            warning: { bg: 'var(--warning)', text: 'var(--dark)' },
+            info: { bg: 'rgba(0, 0, 0, 0.8)', text: 'white' }
+        };
+        
+        toast.style.backgroundColor = typeStyles[type].bg;
+        toast.style.color = typeStyles[type].text;
+        
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => {
+            toast.className = 'toast';
+        }, 3000);
+    }
+}
+
+// Main Application
+class VoltunixApp {
+    constructor() {
+        this.userState = new UserState();
+        this.ui = new DashboardUI(this.userState);
+        this.init();
+    }
+
+    init() {
+        if (!this.userState.currentUser) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        this.ui.updateUserInfo();
         this.ui.setupDailyReward();
         this.ui.renderLeaderboards();
         this.ui.renderGames();
     }
 }
 
-// Initialize the application when DOM is loaded
+// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     const app = new VoltunixApp();
     
-    // Expose to global scope for debugging (remove in production)
+    // For debugging
     window.Voltunix = {
         app,
         userState: app.userState,
