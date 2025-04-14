@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltunix Casino | Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), #16213e);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 0, 255, 0.4);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .password-rules {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .password-rules ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+
+        .password-rules li {
+            margin-bottom: 3px;
+        }
+
+        .rule-valid {
+            color: var(--success);
+        }
+
+        .rule-invalid {
+            color: var(--danger);
+        }
+
+        .input-error {
+            border-color: var(--danger) !important;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1><i class="fas fa-bolt"></i> Voltunix Casino</h1>
+        </div>
+
+        <form id="register-form" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" required>
+                <div class="error-message" id="username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" class="form-control" required>
+                    <button type="button" class="toggle-password" id="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="password-rules">
+                    <div>Password must contain:</div>
+                    <ul>
+                        <li id="rule-length"><i class="fas"></i> At least 8 characters</li>
+                        <li id="rule-uppercase"><i class="fas"></i> At least 1 uppercase letter</li>
+                        <li id="rule-number"><i class="fas"></i> At least 1 number</li>
+                        <li id="rule-special"><i class="fas"></i> At least 1 special character</li>
+                    </ul>
+                </div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" id="confirm-password" class="form-control" required>
+                    <button type="button" class="toggle-password" id="toggle-confirm-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="confirm-password-error"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+            
+            <div class="form-footer">
+                Already have an account? <a href="index.html">Login here</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Initialize users database if it doesn't exist
+        if (!localStorage.getItem('voltx_users')) {
+            localStorage.setItem('voltx_users', JSON.stringify([]));
+        }
+
+        // DOM Elements
+        const registerForm = document.getElementById('register-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        const toggleConfirmPasswordBtn = document.getElementById('toggle-confirm-password');
+        const usernameError = document.getElementById('username-error');
+        const passwordError = document.getElementById('password-error');
+        const confirmPasswordError = document.getElementById('confirm-password-error');
+
+        // Password validation rules
+        const passwordRules = {
+            length: { regex: /.{8,}/, element: document.getElementById('rule-length') },
+            uppercase: { regex: /[A-Z]/, element: document.getElementById('rule-uppercase') },
+            number: { regex: /[0-9]/, element: document.getElementById('rule-number') },
+            special: { regex: /[^A-Za-z0-9]/, element: document.getElementById('rule-special') }
+        };
+
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        toggleConfirmPasswordBtn.addEventListener('click', () => {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            toggleConfirmPasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Real-time password validation
+        passwordInput.addEventListener('input', validatePassword);
+        confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+        usernameInput.addEventListener('input', validateUsername);
+
+        function validatePassword() {
+            const password = passwordInput.value;
+            let isValid = true;
+            
+            // Check each password rule
+            for (const [rule, { regex, element }] of Object.entries(passwordRules)) {
+                const ruleValid = regex.test(password);
+                element.classList.toggle('rule-valid', ruleValid);
+                element.classList.toggle('rule-invalid', !ruleValid);
+                
+                const icon = element.querySelector('i');
+                icon.className = ruleValid ? 'fas fa-check' : 'fas fa-times';
+                
+                if (!ruleValid) isValid = false;
+            }
+            
+            // Update confirm password validation if needed
+            if (confirmPasswordInput.value) {
+                validateConfirmPassword();
+            }
+            
+            return isValid;
+        }
+
+        function validateConfirmPassword() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            let isValid = true;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                confirmPasswordInput.classList.add('input-error');
+                confirmPasswordError.textContent = 'Passwords do not match';
+                isValid = false;
+            } else {
+                confirmPasswordInput.classList.remove('input-error');
+                confirmPasswordError.textContent = '';
+            }
+            
+            return isValid;
+        }
+
+        function validateUsername() {
+            const username = usernameInput.value.trim();
+            let isValid = true;
+            
+            if (username.length < 3) {
+                usernameInput.classList.add('input-error');
+                usernameError.textContent = 'Username must be at least 3 characters';
+                isValid = false;
+            } else {
+                usernameInput.classList.remove('input-error');
+                usernameError.textContent = '';
+            }
+            
+            return isValid;
+        }
+
+        // Registration form submission
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            // Validate all fields
+            const isUsernameValid = validateUsername();
+            const isPasswordValid = validatePassword();
+            const isConfirmPasswordValid = validateConfirmPassword();
+            
+            if (!isUsernameValid || !isPasswordValid || !isConfirmPasswordValid) {
+                showToast('Please fix the errors in the form', 'error');
+                return;
+            }
+            
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('voltx_users'));
+            const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
+            
+            if (userExists) {
+                usernameInput.classList.add('input-error');
+                usernameError.textContent = 'Username already taken!';
+                showToast('Username already taken!', 'error');
+                return;
+            }
+            
+            // Create new user with initial data matching dashboard
+            const newUser = {
+                id: Date.now().toString(),
+                username,
+                password, // Note: In production, you should hash passwords
+                coins: 1000, // Starting coins
+                points: 0,
+                streak: 0,
+                lastClaim: null,
+                gamesPlayed: {
+                    'tic-tac-toe': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                    'memory': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                    'coin-flip': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                    'aviator': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                    'rps': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 }
+                },
+                achievements: [],
+                settings: {
+                    sound: true,
+                    animations: true,
+                    theme: 'dark'
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save user
+            users.push(newUser);
+            localStorage.setItem('voltx_users', JSON.stringify(users));
+            localStorage.setItem('voltx_currentUser', JSON.stringify(newUser));
+            
+            showToast('Registration successful! 1000 coins added', 'success');
+            
+            // Redirect to dashboard after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        });
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(type, 'show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
