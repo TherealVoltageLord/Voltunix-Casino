@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip | Voltunix Casino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --secondary-light: #ff2bbd;
+            --dark: #1a1a2e;
+            --darker: #121223;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            font-size: 1.2rem;
+            color: var(--warning);
+        }
+
+        .user-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-level {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .betting-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .bet-amount {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .difficulty-select {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .place-bet {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .place-bet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .multipliers {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .multiplier-chip {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .coin-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 2rem 0;
+            perspective: 1000px;
+        }
+
+        .coin {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .coin-face {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .heads {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            transform: rotateY(0deg);
+        }
+
+        .tails {
+            background: linear-gradient(135deg, #636e72, #2d3436);
+            transform: rotateY(180deg);
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .choice-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.3),
+                rgba(255, 255, 255, 0)
+            );
+            transform: rotate(30deg);
+            transition: all 0.3s;
+        }
+
+        .choice-btn:hover::after {
+            left: 100%;
+        }
+
+        .heads-btn {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+        }
+
+        .tails-btn {
+            background: linear-gradient(135deg, #636e72, #2d3436);
+            color: white;
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            min-height: 2.5rem;
+        }
+
+        .win-animation {
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .coin-shadow {
+            width: 180px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            margin-top: -15px;
+            filter: blur(10px);
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .coin-container {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .bet-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-controls {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 5px;
+            }
+            
+            .choice-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .choice-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Voltunix Casino</span>
+        </div>
+        <div class="nav-controls">
+            <button class="nav-btn" id="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </button>
+            <div class="user-info">
+                <div class="user-badge" id="user-badge"><i class="fas fa-egg"></i></div>
+                <div class="user-balance" id="user-balance">0 Voltz</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="player-header">
+            <h1><i class="fas fa-coins"></i> Coin Flip</h1>
+            <div class="player-level" id="player-level">Lvl 1 Rookie</div>
+        </div>
+
+        <div class="betting-panel">
+            <div class="bet-controls">
+                <input type="number" id="bet-amount" class="bet-amount" placeholder="Bet amount" min="1">
+                <select id="difficulty" class="difficulty-select">
+                    <option value="easy">Easy (1.5x)</option>
+                    <option value="medium">Medium (1.7x)</option>
+                    <option value="hard">Hard (1.9x)</option>
+                    <option value="extreme">Extreme (20x)</option>
+                </select>
+                <button class="place-bet" id="place-bet">Place Bet</button>
+            </div>
+            <div class="multipliers">
+                <div class="multiplier-chip">Easy: 1.5x (60% win chance)</div>
+                <div class="multiplier-chip">Medium: 1.7x (40% win chance)</div>
+                <div class="multiplier-chip">Hard: 1.9x (20% win chance)</div>
+                <div class="multiplier-chip">Extreme: 20x (8% win chance)</div>
+            </div>
+        </div>
+
+        <div class="game-container" id="game-container">
+            <div class="coin-container">
+                <div class="coin" id="coin">
+                    <div class="coin-face heads"><i class="fas fa-circle"></i></div>
+                    <div class="coin-face tails"><i class="fas fa-dollar-sign"></i></div>
+                </div>
+                <div class="coin-shadow"></div>
+            </div>
+            <div class="choice-buttons">
+                <button class="choice-btn heads-btn" id="heads-btn">
+                    <i class="fas fa-circle"></i> Heads
+                </button>
+                <button class="choice-btn tails-btn" id="tails-btn">
+                    <i class="fas fa-dollar-sign"></i> Tails
+                </button>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+class UserState {
+  constructor() {
+    this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+    this.currentUser = null;
+    this.loadCurrentUser();
+  }
+  
+  loadCurrentUser() {
+    const userData = localStorage.getItem('voltx_currentUser');
+    if (userData) {
+      this.currentUser = JSON.parse(userData);
+      const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+      if (userIndex !== -1) {
+        this.users[userIndex] = { ...this.users[userIndex], ...this.currentUser };
+        this.saveAllUsers();
+      }
+    }
+  }
+  
+  saveAllUsers() {
+    localStorage.setItem('voltx_users', JSON.stringify(this.users));
+  }
+  
+  saveUser() {
+    if (this.currentUser) {
+      localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+      const index = this.users.findIndex(u => u.id === this.currentUser.id);
+      if (index !== -1) {
+        this.users[index] = this.currentUser;
+        this.saveAllUsers();
+      }
+    }
+  }
+  
+  updateCoins(amount) {
+    if (!this.currentUser) return 0;
+    this.currentUser.coins += amount;
+    this.saveUser();
+    return this.currentUser.coins;
+  }
+  
+  updatePoints(amount) {
+    if (!this.currentUser) return 0;
+    this.currentUser.points += amount;
+    this.saveUser();
+    return this.currentUser.points;
+  }
+}
+
+const LEVELS = [
+  { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+  { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+  { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+  { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+  { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+  { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+];
+
+const userState = new UserState();
+let gameActive = false;
+let betAmount = 0;
+let difficulty = 'easy';
+let playerChoice = '';
+const multipliers = {
+  easy: 1.5,
+  medium: 1.7,
+  hard: 1.9,
+  extreme: 20
+};
+const winProbabilities = {
+  easy: 0.6,
+  medium: 0.4,
+  hard: 0.2,
+  extreme: 0.08
+};
+
+const userBadge = document.getElementById('user-badge');
+const userBalance = document.getElementById('user-balance');
+const playerLevel = document.getElementById('player-level');
+const betAmountInput = document.getElementById('bet-amount');
+const difficultySelect = document.getElementById('difficulty');
+const placeBetBtn = document.getElementById('place-bet');
+const gameContainer = document.getElementById('game-container');
+const coin = document.getElementById('coin');
+const headsBtn = document.getElementById('heads-btn');
+const tailsBtn = document.getElementById('tails-btn');
+const statusDisplay = document.getElementById('status');
+const toast = document.getElementById('toast');
+const backBtn = document.getElementById('back-btn');
+
+function initGame() {
+  if (!userState.currentUser) {
+    window.location.href = 'index.html';
+    return;
+  }
+  
+  updateUserInfo();
+  
+  placeBetBtn.addEventListener('click', placeBet);
+  headsBtn.addEventListener('click', () => makeChoice('heads'));
+  tailsBtn.addEventListener('click', () => makeChoice('tails'));
+  backBtn.addEventListener('click', () => {
+    window.location.href = 'dashboard.html';
+  });
+}
+
+function updateUserInfo() {
+  const user = userState.currentUser;
+  userBalance.textContent = `${user.coins || 0} Voltz`;
+  
+  const currentLevel = LEVELS.reduce((acc, level, index) => {
+    return (user.points || 0) >= level.min ? { ...level, number: index + 1 } : acc;
+  }, { number: 1, title: "Rookie", badge: "fa-egg", next: 2000 });
+  
+  playerLevel.textContent = `Lvl ${currentLevel.number} ${currentLevel.title}`;
+  userBadge.innerHTML = `<i class="fas ${currentLevel.badge}"></i>`;
+}
+
+function placeBet() {
+  betAmount = parseInt(betAmountInput.value);
+  difficulty = difficultySelect.value;
+  
+  if (!betAmount || betAmount < 1) {
+    showToast('Please enter a valid bet amount', 'error');
+    return;
+  }
+  
+  if (betAmount > userState.currentUser.coins) {
+    showToast('Not enough Voltz', 'error');
+    return;
+  }
+  
+  userState.updateCoins(-betAmount);
+  updateUserInfo();
+  
+  gameActive = true;
+  gameContainer.style.display = 'flex';
+  statusDisplay.textContent = `Choose Heads or Tails to win ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz!`;
+  showToast(`Bet placed! Playing for ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz`);
+}
+
+function makeChoice(choice) {
+  if (!gameActive) return;
+  
+  playerChoice = choice;
+  gameActive = false;
+  headsBtn.disabled = true;
+  tailsBtn.disabled = true;
+  
+  const shouldWin = Math.random() <= winProbabilities[difficulty];
+  const result = shouldWin ? choice : (choice === 'heads' ? 'tails' : 'heads');
+  
+  flipCoin(result);
+}
+
+function flipCoin(result) {
+  const flipDegrees = result === 'heads' ? 0 : 180;
+  const spinCount = 5 + Math.floor(Math.random() * 3);
+  const totalDegrees = spinCount * 360 + flipDegrees;
+  
+  let rotation = 0;
+  const speed = 30;
+  const coinShadow = document.querySelector('.coin-shadow');
+  
+  const flipInterval = setInterval(() => {
+    rotation += speed;
+    coin.style.transform = `rotateY(${rotation}deg)`;
+    
+    const progress = (rotation % 360) / 360;
+    if (progress < 0.5) {
+      coinShadow.style.width = `${180 - progress * 100}px`;
+      coinShadow.style.opacity = `${0.7 - progress * 0.7}`;
+    } else {
+      coinShadow.style.width = `${80 + (progress - 0.5) * 100}px`;
+      coinShadow.style.opacity = `${0 + (progress - 0.5) * 0.7}`;
+    }
+    
+    if (rotation >= totalDegrees) {
+      clearInterval(flipInterval);
+      checkResult(result);
+    }
+  }, 16);
+}
+
+function checkResult(result) {
+  const gameKey = 'coin-flip';
+  const didWin = result === playerChoice;
+  
+  if (didWin) {
+    const winnings = Math.floor(betAmount * multipliers[difficulty]);
+    userState.updateCoins(winnings);
+    userState.updatePoints(10); // 10 points per win as per dashboard config
+    
+    // Update game stats
+    userState.currentUser.gamesPlayed[gameKey].wins++;
+    userState.currentUser.gamesPlayed[gameKey].totalWon += winnings;
+    
+    statusDisplay.innerHTML = `You won! <span class="win-animation">${winnings} Voltz</span>`;
+    showToast(`You won ${winnings} Voltz!`, 'success');
+    
+    if (difficulty === 'extreme') {
+      createConfetti();
+    }
+  } else {
+    // Update game stats
+    userState.currentUser.gamesPlayed[gameKey].losses++;
+    statusDisplay.textContent = `You lost! It was ${result}.`;
+    showToast('Better luck next time!', 'error');
+  }
+  
+  // Update wagered amount
+  userState.currentUser.gamesPlayed[gameKey].totalWagered += betAmount;
+  userState.saveUser();
+  updateUserInfo();
+  
+  setTimeout(() => {
+    coin.style.transform = 'rotateY(0deg)';
+    document.querySelector('.coin-shadow').style.width = '180px';
+    document.querySelector('.coin-shadow').style.opacity = '0.7';
+    headsBtn.disabled = false;
+    tailsBtn.disabled = false;
+    gameContainer.style.display = 'none';
+  }, 3000);
+}
+
+function createConfetti() {
+  const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+  
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'fixed';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.borderRadius = '50%';
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.top = '-10px';
+    confetti.style.zIndex = '1000';
+    confetti.style.transform = 'rotate(0deg)';
+    document.body.appendChild(confetti);
+    
+    const animation = confetti.animate([
+      { top: '-10px', transform: 'rotate(0deg)', opacity: 1 },
+      { top: `${Math.random() * 100 + 50}vh`, transform: 'rotate(720deg)', opacity: 0 }
+    ], {
+      duration: 2000 + Math.random() * 3000,
+      easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+    });
+    
+    animation.onfinish = () => confetti.remove();
+  }
+}
+
+function showToast(message, type = 'info') {
+  toast.textContent = message;
+  toast.className = 'toast';
+  
+  if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+  else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+  else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+  
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
