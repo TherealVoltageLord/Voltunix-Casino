@@ -330,35 +330,391 @@
             localStorage.setItem('voltx_users', JSON.stringify(users));
             
             // Set as current user
-            localStorage.setItem('voltx_currentUser', JSON.stringify(user));
-            
-            // Show success message
-            showToast(`Welcome back, ${user.username}!`, 'success');
-            
-            // Redirect to dashboard after short delay
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1000);
-        });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltunix Casino | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
 
-        // Check if user is already logged in
-        window.addEventListener('DOMContentLoaded', () => {
-            const currentUser = localStorage.getItem('voltx_currentUser');
-            if (currentUser) {
-                window.location.href = 'dashboard.html';
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), #16213e);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 0, 255, 0.4);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .input-error {
+            border-color: var(--danger) !important;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -0.5rem;
+        }
+
+        .forgot-password a {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+            color: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1><i class="fas fa-bolt"></i> Voltunix Casino</h1>
+        </div>
+
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" required>
+                <div class="error-message" id="username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" class="form-control" required>
+                    <button type="button" class="toggle-password" id="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password">Forgot password?</a>
+                </div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            
+            <div class="form-footer">
+                New to Voltunix? <a href="reg.html">Create an account</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const CONFIG = {
+            INITIAL_COINS: 1000,
+            INITIAL_POINTS: 500,
+            DAILY_REWARD_BASE: 100,
+            LEVELS: [
+                { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+                { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+                { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+                { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+                { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+                { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+            ]
+        };
+
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.loadCurrentUser();
             }
-        });
 
-        // Toast notification
-        function showToast(message, type = 'error') {
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            login(username, password) {
+                const user = this.users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    user.lastLogin = new Date().toISOString();
+                    this.currentUser = user;
+                    localStorage.setItem('voltx_currentUser', JSON.stringify(user));
+                    this.saveAllUsers();
+                    return true;
+                }
+                return false;
+            }
+
+            register(username, password) {
+                if (this.users.some(u => u.username === username)) {
+                    return false;
+                }
+
+                const newUser = {
+                    id: Date.now().toString(),
+                    username,
+                    password,
+                    coins: CONFIG.INITIAL_COINS,
+                    points: CONFIG.INITIAL_POINTS,
+                    streak: 0,
+                    lastClaim: null,
+                    gamesPlayed: {
+                        'tic-tac-toe': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'memory': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'coin-flip': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'aviator': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 },
+                        'rps': { wins: 0, losses: 0, totalWagered: 0, totalWon: 0 }
+                    },
+                    achievements: [],
+                    settings: {
+                        sound: true,
+                        animations: true,
+                        theme: 'dark'
+                    },
+                    createdAt: new Date().toISOString()
+                };
+
+                this.users.push(newUser);
+                this.currentUser = newUser;
+                localStorage.setItem('voltx_currentUser', JSON.stringify(newUser));
+                this.saveAllUsers();
+                return true;
+            }
+
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
+        }
+
+        function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast';
-            toast.classList.add(type, 'show');
             
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        if (!localStorage.getItem('voltx_users')) {
+            localStorage.setItem('voltx_users', JSON.stringify([]));
+        }
+
+        const userState = new UserState();
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        document.getElementById('forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            showToast('Please contact support to reset your password', 'error');
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!username || !password) {
+                showToast('Please enter both username and password', 'error');
+                return;
+            }
+            
+            if (userState.login(username, password)) {
+                showToast(`Welcome back, ${username}!`, 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            } else {
+                showToast('Invalid username or password', 'error');
+            }
+        });
+
+        if (userState.currentUser) {
+            window.location.href = 'dashboard.html';
         }
     </script>
 </body>
