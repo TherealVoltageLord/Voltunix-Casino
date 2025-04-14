@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator | Voltunix Casino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --secondary-light: #ff2bbd;
+            --dark: #1a1a2e;
+            --darker: #121223;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            font-size: 1.2rem;
+            color: var(--warning);
+        }
+
+        .user-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-level {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .betting-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .bet-amount {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .place-bet {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .place-bet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .game-area {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .multiplier-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--warning);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .plane {
+            position: absolute;
+            left: 50px;
+            bottom: 0;
+            width: 60px;
+            height: 60px;
+            transition: bottom 0.1s linear;
+        }
+
+        .plane img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .crash-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--danger);
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .cashout-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--success), #00d2a0);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .cashout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            min-height: 2.5rem;
+        }
+
+        .bet-history {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .history-chip {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .history-chip.win {
+            background: var(--success);
+        }
+
+        .history-chip.loss {
+            background: var(--danger);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                height: 200px;
+            }
+            
+            .bet-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .multiplier-display {
+                font-size: 1.5rem;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Voltunix Casino</span>
+        </div>
+        <div class="nav-controls">
+            <button class="nav-btn" id="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </button>
+            <div class="user-info">
+                <div class="user-badge" id="user-badge"><i class="fas fa-egg"></i></div>
+                <div class="user-balance" id="user-balance">0 Voltz</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="player-header">
+            <h1><i class="fas fa-plane"></i> Aviator</h1>
+            <div class="player-level" id="player-level">Lvl 1 Rookie</div>
+        </div>
+
+        <div class="betting-panel">
+            <div class="bet-controls">
+                <input type="number" id="bet-amount" class="bet-amount" placeholder="Bet amount" min="5">
+                <button class="place-bet" id="place-bet">Place Bet</button>
+            </div>
+            <div class="bet-history" id="bet-history"></div>
+        </div>
+
+        <div class="game-container" id="game-container">
+            <div class="game-area" id="game-area">
+                <div class="multiplier-display" id="multiplier-display">1.00x</div>
+                <div class="crash-line" id="crash-line"></div>
+                <div class="plane" id="plane">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1047/1047711.png" alt="Plane">
+                </div>
+            </div>
+            <div class="controls">
+                <button class="cashout-btn" id="cashout-btn">Cash Out</button>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // UserState class identical to coin-flip
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.loadCurrentUser();
+            }
+            
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = { ...this.users[userIndex], ...this.currentUser };
+                        this.saveAllUsers();
+                    }
+                    
+                    // Initialize game stats if not exists
+                    if (!this.currentUser.gamesPlayed) this.currentUser.gamesPlayed = {};
+                    if (!this.currentUser.gamesPlayed.aviator) {
+                        this.currentUser.gamesPlayed.aviator = {
+                            wins: 0,
+                            losses: 0,
+                            totalWagered: 0,
+                            totalWon: 0,
+                            lastResults: []
+                        };
+                    }
+                }
+            }
+            
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
+            
+            saveUser() {
+                if (this.currentUser) {
+                    localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+                    const index = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (index !== -1) {
+                        this.users[index] = this.currentUser;
+                        this.saveAllUsers();
+                    }
+                }
+            }
+            
+            updateCoins(amount) {
+                if (!this.currentUser) return false;
+                if (amount < 0 && this.currentUser.coins < Math.abs(amount)) return false;
+                this.currentUser.coins += amount;
+                this.saveUser();
+                return true;
+            }
+            
+            updatePoints(amount) {
+                if (!this.currentUser) return false;
+                this.currentUser.points += amount;
+                this.saveUser();
+                return true;
+            }
+        }
+
+        const LEVELS = [
+            { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+            { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+            { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+            { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+            { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+            { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+        ];
+
+        const userState = new UserState();
+        let gameActive = false;
+        let betAmount = 0;
+        let currentMultiplier = 1.0;
+        let cashoutMultiplier = 0;
+        let gameInterval;
+        let crashPoint = 0;
+
+        const userBadge = document.getElementById('user-badge');
+        const userBalance = document.getElementById('user-balance');
+        const playerLevel = document.getElementById('player-level');
+        const betAmountInput = document.getElementById('bet-amount');
+        const placeBetBtn = document.getElementById('place-bet');
+        const gameContainer = document.getElementById('game-container');
+        const gameArea = document.getElementById('game-area');
+        const multiplierDisplay = document.getElementById('multiplier-display');
+        const crashLine = document.getElementById('crash-line');
+        const plane = document.getElementById('plane');
+        const cashoutBtn = document.getElementById('cashout-btn');
+        const statusDisplay = document.getElementById('status');
+        const toast = document.getElementById('toast');
+        const backBtn = document.getElementById('back-btn');
+        const betHistory = document.getElementById('bet-history');
+
+        function initGame() {
+            if (!userState.currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            updateUserInfo();
+            loadHistory();
+            
+            placeBetBtn.addEventListener('click', placeBet);
+            cashoutBtn.addEventListener('click', cashout);
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+        }
+
+        function updateUserInfo() {
+            const user = userState.currentUser;
+            userBalance.textContent = `${user.coins || 0} Voltz`;
+            
+            const currentLevel = LEVELS.reduce((acc, level, index) => {
+                return (user.points || 0) >= level.min ? { ...level, number: index + 1 } : acc;
+            }, { number: 1, title: "Rookie", badge: "fa-egg", next: 2000 });
+            
+            playerLevel.textContent = `Lvl ${currentLevel.number} ${currentLevel.title}`;
+            userBadge.innerHTML = `<i class="fas ${currentLevel.badge}"></i>`;
+        }
+
+        function loadHistory() {
+            if (!userState.currentUser?.gamesPlayed?.aviator?.lastResults) return;
+            
+            const history = userState.currentUser.gamesPlayed.aviator.lastResults.slice(-5).reverse();
+            betHistory.innerHTML = '';
+            
+            history.forEach(result => {
+                const chip = document.createElement('div');
+                chip.className = `history-chip ${result.win ? 'win' : 'loss'}`;
+                chip.textContent = `${result.multiplier.toFixed(2)}x`;
+                betHistory.appendChild(chip);
+            });
+        }
+
+        function placeBet() {
+            betAmount = parseInt(betAmountInput.value);
+            
+            if (!betAmount || betAmount < 5) {
+                showToast('Minimum bet is 5 Voltz', 'error');
+                return;
+            }
+            
+            if (betAmount > 500) {
+                showToast('Maximum bet is 500 Voltz', 'error');
+                return;
+            }
+            
+            if (betAmount > userState.currentUser.coins) {
+                showToast('Not enough Voltz', 'error');
+                return;
+            }
+            
+            if (!userState.updateCoins(-betAmount)) {
+                showToast('Transaction failed', 'error');
+                return;
+            }
+            
+            startGame();
+            showToast(`Bet placed! Good luck!`);
+        }
+
+        function startGame() {
+            gameActive = true;
+            currentMultiplier = 1.0;
+            cashoutMultiplier = 0;
+            plane.style.bottom = '0';
+            
+            crashPoint = 1.1 + Math.random() * 8.9;
+            if (Math.random() < 0.1) crashPoint += 5 + Math.random() * 20;
+            
+            gameContainer.style.display = 'flex';
+            placeBetBtn.disabled = true;
+            cashoutBtn.style.display = 'block';
+            statusDisplay.textContent = 'Cash out before the plane crashes!';
+            
+            gameInterval = setInterval(updateGame, 100);
+        }
+
+        function updateGame() {
+            currentMultiplier += 0.05;
+            const planeHeight = parseInt(plane.style.bottom || '0') + 2;
+            plane.style.bottom = `${planeHeight}px`;
+            
+            multiplierDisplay.textContent = currentMultiplier.toFixed(2) + 'x';
+            
+            if (currentMultiplier > crashPoint * 0.8) {
+                multiplierDisplay.style.color = (Math.floor(Date.now() / 100) % 2) ? 'var(--danger)' : 'var(--warning)';
+            } else if (currentMultiplier > crashPoint * 0.5) {
+                multiplierDisplay.style.color = 'var(--warning)';
+            }
+            
+            if (currentMultiplier >= crashPoint) {
+                endGame(false);
+            }
+        }
+
+        function cashout() {
+            if (!gameActive) return;
+            cashoutMultiplier = currentMultiplier;
+            endGame(true);
+        }
+
+        function endGame(manualCashout) {
+            clearInterval(gameInterval);
+            gameActive = false;
+            
+            const winnings = manualCashout ? Math.floor(betAmount * cashoutMultiplier) : 0;
+            const resultMultiplier = manualCashout ? cashoutMultiplier : currentMultiplier;
+            const gameKey = 'aviator';
+            const stats = userState.currentUser.gamesPlayed[gameKey];
+            
+            if (manualCashout) {
+                userState.updateCoins(winnings);
+                userState.updatePoints(20); // 20 points per win
+                statusDisplay.innerHTML = `Cashed out at <span style="color:var(--success)">${cashoutMultiplier.toFixed(2)}x</span>! Won ${winnings} Voltz`;
+                showToast(`Cashed out at ${cashoutMultiplier.toFixed(2)}x!`, 'success');
+                
+                stats.wins++;
+                stats.totalWon += winnings;
+                stats.lastResults.push({
+                    win: true,
+                    multiplier: cashoutMultiplier,
+                    amount: winnings,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                statusDisplay.innerHTML = `Crashed at <span style="color:var(--danger)">${currentMultiplier.toFixed(2)}x</span>!`;
+                showToast(`Plane crashed at ${currentMultiplier.toFixed(2)}x`, 'error');
+                
+                stats.losses++;
+                stats.lastResults.push({
+                    win: false,
+                    multiplier: currentMultiplier,
+                    amount: betAmount,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            // Keep only last 10 results
+            if (stats.lastResults.length > 10) {
+                stats.lastResults = stats.lastResults.slice(-10);
+            }
+            
+            stats.totalWagered += betAmount;
+            userState.saveUser();
+            updateUserInfo();
+            loadHistory();
+            
+            placeBetBtn.disabled = false;
+            cashoutBtn.style.display = 'none';
+            
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                multiplierDisplay.textContent = '1.00x';
+                multiplierDisplay.style.color = 'var(--warning)';
+            }, 3000);
+        }
+
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
