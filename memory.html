@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game | Voltunix Casino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --secondary-light: #ff2bbd;
+            --dark: #1a1a2e;
+            --darker: #121223;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            font-size: 1.2rem;
+            color: var(--warning);
+        }
+
+        .user-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-level {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .betting-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .bet-amount {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .difficulty-select {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .place-bet {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .place-bet:hover {
+            transform: scale(1.05);
+        }
+
+        .place-bet:active {
+            transform: scale(0.98);
+        }
+
+        .multipliers {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .multiplier-chip {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 2rem 0;
+            max-width: 500px;
+        }
+
+        .memory-card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            border-radius: 10px;
+        }
+
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .memory-card-front {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .memory-card-back {
+            background: var(--card-bg);
+            transform: rotateY(180deg);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 2rem;
+        }
+
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched .memory-card-back {
+            background: var(--success);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .memory-card.matched {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 1rem;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .moves {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            min-height: 2.5rem;
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .game-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dashboard-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .dashboard-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .new-game-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .new-game-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .new-game-btn:active {
+            transform: scale(0.98);
+        }
+
+        .win-animation {
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .memory-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .memory-card {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .memory-card-back {
+                font-size: 1.5rem;
+            }
+            
+            .bet-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" id="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Voltunix Casino</span>
+        </div>
+        <div class="user-info">
+            <div class="user-badge" id="user-badge"><i class="fas fa-egg"></i></div>
+            <div class="user-balance" id="user-balance">0 Voltz</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="player-header">
+            <h1><i class="fas fa-brain"></i> Memory Match</h1>
+            <div class="player-level" id="player-level">Lvl 1 Rookie</div>
+        </div>
+
+        <div class="betting-panel">
+            <div class="bet-controls">
+                <input type="number" id="bet-amount" class="bet-amount" placeholder="Bet amount" min="1">
+                <select id="difficulty" class="difficulty-select">
+                    <option value="easy">Easy (1.5x)</option>
+                    <option value="medium">Medium (1.7x)</option>
+                    <option value="hard">Hard (1.9x)</option>
+                    <option value="extreme">Extreme (20x)</option>
+                </select>
+                <button class="place-bet" id="place-bet">Place Bet</button>
+            </div>
+            <div class="multipliers">
+                <div class="multiplier-chip">Easy: 1.5x (60% win chance)</div>
+                <div class="multiplier-chip">Medium: 1.7x (40% win chance)</div>
+                <div class="multiplier-chip">Hard: 1.9x (20% win chance)</div>
+                <div class="multiplier-chip">Extreme: 20x (8% win chance)</div>
+            </div>
+        </div>
+
+        <div class="game-container" id="game-container">
+            <div class="timer-container">
+                <div class="timer" id="timer">Time: 60s</div>
+                <div class="moves" id="moves">Moves: 0</div>
+            </div>
+            <div class="memory-board" id="memory-board"></div>
+            <div class="status" id="status"></div>
+            <div class="game-buttons">
+                <button class="game-btn dashboard-btn" id="dashboard-btn">
+                    <i class="fas fa-home"></i> Dashboard
+                </button>
+                <button class="game-btn new-game-btn" id="new-game-btn">
+                    <i class="fas fa-redo"></i> New Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Shared UserState class (same as dashboard)
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.loadCurrentUser();
+            }
+
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
+
+            saveUser() {
+                if (this.currentUser) {
+                    localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+                    const index = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (index !== -1) {
+                        this.users[index] = this.currentUser;
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            updateCoins(amount) {
+                if (!this.currentUser) return 0;
+                this.currentUser.coins += amount;
+                this.saveUser();
+                return this.currentUser.coins;
+            }
+
+            updatePoints(amount) {
+                if (!this.currentUser) return 0;
+                this.currentUser.points += amount;
+                this.saveUser();
+                return this.currentUser.points;
+            }
+        }
+
+        const LEVELS = [
+            { min: 0, title: "Rookie", badge: "fa-egg", next: 2000 },
+            { min: 2000, title: "Sergeant", badge: "fa-star", next: 5000 },
+            { min: 5000, title: "Captain", badge: "fa-medal", next: 9000 },
+            { min: 9000, title: "Major", badge: "fa-trophy", next: 15000 },
+            { min: 15000, title: "Colonel", badge: "fa-crown", next: 25000 },
+            { min: 25000, title: "Legend", badge: "fa-trophy-star", next: Infinity }
+        ];
+
+        const userState = new UserState();
+        let gameActive = false;
+        let betAmount = 0;
+        let difficulty = 'easy';
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let timeLeft = 0;
+        let timerInterval;
+        const multipliers = {
+            easy: 1.5,
+            medium: 1.7,
+            hard: 1.9,
+            extreme: 20
+        };
+        const timeLimits = {
+            easy: 60,
+            medium: 50,
+            hard: 35,
+            extreme: 20
+        };
+        const symbols = ['🍎', '🍌', '🍒', '🍓', '🍊', '🍋', '🍉', '🍇'];
+        let cards = [];
+
+        const userBadge = document.getElementById('user-badge');
+        const userBalance = document.getElementById('user-balance');
+        const playerLevel = document.getElementById('player-level');
+        const betAmountInput = document.getElementById('bet-amount');
+        const difficultySelect = document.getElementById('difficulty');
+        const placeBetBtn = document.getElementById('place-bet');
+        const gameContainer = document.getElementById('game-container');
+        const memoryBoard = document.getElementById('memory-board');
+        const timerDisplay = document.getElementById('timer');
+        const movesDisplay = document.getElementById('moves');
+        const statusDisplay = document.getElementById('status');
+        const dashboardBtn = document.getElementById('dashboard-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const toast = document.getElementById('toast');
+        const logo = document.getElementById('logo');
+
+        function initGame() {
+            if (!userState.currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            updateUserInfo();
+            
+            placeBetBtn.addEventListener('click', placeBet);
+            dashboardBtn.addEventListener('click', goToDashboard);
+            newGameBtn.addEventListener('click', resetGame);
+            logo.addEventListener('click', goToDashboard);
+        }
+
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function updateUserInfo() {
+            const user = userState.currentUser;
+            userBalance.textContent = `${user.coins || 0} Voltz`;
+            
+            const currentLevel = LEVELS.reduce((acc, level, index) => {
+                return (user.points || 0) >= level.min ? { ...level, number: index + 1 } : acc;
+            }, { number: 1, title: "Rookie", badge: "fa-egg", next: 2000 });
+            
+            playerLevel.textContent = `Lvl ${currentLevel.number} ${currentLevel.title}`;
+            userBadge.innerHTML = `<i class="fas ${currentLevel.badge}"></i>`;
+            
+            if (currentLevel.number < LEVELS.length) {
+                const progress = ((user.points - currentLevel.min) / (currentLevel.next - currentLevel.min)) * 100;
+                playerLevel.title = `Progress: ${Math.min(100, progress).toFixed(1)}% to next level`;
+            } else {
+                playerLevel.title = "Max level achieved!";
+            }
+        }
+
+        function placeBet() {
+            betAmount = parseInt(betAmountInput.value);
+            difficulty = difficultySelect.value;
+
+            if (!betAmount || betAmount < 1) {
+                showToast('Please enter a valid bet amount', 'error');
+                return;
+            }
+
+            if (betAmount > userState.currentUser.coins) {
+                showToast('Not enough Voltz', 'error');
+                return;
+            }
+
+            userState.updateCoins(-betAmount);
+            updateUserInfo();
+            
+            initializeGame();
+            gameActive = true;
+            gameContainer.style.display = 'flex';
+            statusDisplay.textContent = `Find all pairs to win ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz!`;
+            showToast(`Bet placed! Playing for ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz`);
+        }
+
+        function initializeGame() {
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            timeLeft = timeLimits[difficulty];
+            memoryBoard.innerHTML = '';
+            clearInterval(timerInterval);
+            
+            movesDisplay.textContent = `Moves: ${moves}`;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+            timerDisplay.style.color = 'var(--warning)';
+            
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            cards = [...symbols, ...symbols];
+            
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            
+            cards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.dataset.index = index;
+                
+                const cardInner = document.createElement('div');
+                cardInner.classList.add('memory-card-inner');
+                
+                const cardFront = document.createElement('div');
+                cardFront.classList.add('memory-card-front');
+                cardFront.innerHTML = '<i class="fas fa-question"></i>';
+                
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('memory-card-back');
+                cardBack.textContent = symbol;
+                
+                cardInner.appendChild(cardFront);
+                cardInner.appendChild(cardBack);
+                card.appendChild(cardInner);
+                card.addEventListener('click', flipCard);
+                memoryBoard.appendChild(card);
+            });
+            
+            showAllCards();
+        }
+
+        function showAllCards() {
+            const allCards = document.querySelectorAll('.memory-card');
+            allCards.forEach(card => {
+                card.classList.add('flipped');
+            });
+            
+            setTimeout(() => {
+                allCards.forEach(card => {
+                    card.classList.remove('flipped');
+                });
+            }, 2000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+            
+            if (timeLeft <= 10) {
+                timerDisplay.style.color = 'var(--danger)';
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame(false);
+            }
+        }
+
+        function flipCard() {
+            if (!gameActive || flippedCards.length >= 2 || this.classList.contains('flipped') || this.classList.contains('matched')) {
+                return;
+            }
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+            moves++;
+            movesDisplay.textContent = `Moves: ${moves}`;
+
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            const symbol1 = card1.querySelector('.memory-card-back').textContent;
+            const symbol2 = card2.querySelector('.memory-card-back').textContent;
+            
+            if (symbol1 === symbol2) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                
+                if (matchedPairs === symbols.length) {
+                    clearInterval(timerInterval);
+                    endGame(true);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                }, 1000);
+            }
+            
+            flippedCards = [];
+        }
+
+        function endGame(playerWon) {
+            gameActive = false;
+            const gameKey = 'memory';
+
+            if (playerWon) {
+                const winnings = Math.floor(betAmount * multipliers[difficulty]);
+                userState.updateCoins(winnings);
+                userState.updatePoints(30); // 30 points per win as per dashboard config
+                
+                // Update game stats
+                userState.currentUser.gamesPlayed[gameKey].wins++;
+                userState.currentUser.gamesPlayed[gameKey].totalWon += winnings;
+                
+                statusDisplay.innerHTML = `You won! <span class="win-animation">${winnings} Voltz</span>`;
+                showToast(`You won ${winnings} Voltz!`, 'success');
+                
+                if (difficulty === 'extreme') {
+                    createConfetti();
+                }
+            } else {
+                // Update game stats
+                userState.currentUser.gamesPlayed[gameKey].losses++;
+                statusDisplay.textContent = `Time's up! Game over.`;
+                showToast('Better luck next time!', 'error');
+            }
+
+            // Update wagered amount
+            userState.currentUser.gamesPlayed[gameKey].totalWagered += betAmount;
+            userState.saveUser();
+            updateUserInfo();
+        }
+
+        function resetGame() {
+            if (gameActive) {
+                clearInterval(timerInterval);
+            }
+            initializeGame();
+            statusDisplay.textContent = `Find all pairs to win ${(betAmount * multipliers[difficulty]).toFixed(2)} Voltz!`;
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '1000';
+                confetti.style.transform = 'rotate(0deg)';
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { top: '-10px', transform: 'rotate(0deg)', opacity: 1 },
+                    { top: `${Math.random() * 100 + 50}vh`, transform: 'rotate(720deg)', opacity: 0 }
+                ], {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
