@@ -384,7 +384,6 @@
         <i class="fas fa-volume-up"></i>
     </div>
 
-    <!-- Audio Elements -->
     <audio id="background-audio" loop>
         <source src="aviator.mp3" type="audio/mpeg">
     </audio>
@@ -399,7 +398,6 @@
     </audio>
 
     <script>
-        // UserState class identical to coin-flip
         class UserState {
             constructor() {
                 this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
@@ -417,7 +415,6 @@
                         this.saveAllUsers();
                     }
                     
-                    // Initialize game stats if not exists
                     if (!this.currentUser.gamesPlayed) this.currentUser.gamesPlayed = {};
                     if (!this.currentUser.gamesPlayed.aviator) {
                         this.currentUser.gamesPlayed.aviator = {
@@ -481,7 +478,6 @@
         let autoCashoutValue = 0;
         let soundEnabled = true;
 
-        // DOM elements
         const elements = {
             userBadge: document.getElementById('user-badge'),
             userBalance: document.getElementById('user-balance'),
@@ -523,7 +519,6 @@
             elements.soundControl.addEventListener('click', toggleSound);
             elements.autoCashoutInput.addEventListener('change', updateAutoCashout);
             
-            // Try to play audio (will fail without user interaction)
             document.addEventListener('click', () => {
                 elements.backgroundAudio.volume = 0.5;
                 elements.cashoutAudio.volume = 0.7;
@@ -579,13 +574,13 @@
         function placeBet() {
             betAmount = parseInt(elements.betAmountInput.value);
             
-            if (!betAmount || betAmount < 5) {
-                showToast('Minimum bet is 5 Voltz', 'error');
+            if (!betAmount || betAmount < 100) {
+                showToast('Minimum bet is 100 Voltz', 'error');
                 return;
             }
             
-            if (betAmount > 500) {
-                showToast('Maximum bet is 500 Voltz', 'error');
+            if (betAmount > 1500) {
+                showToast('Maximum bet is 1500 Voltz', 'error');
                 return;
             }
             
@@ -614,8 +609,7 @@
             cashoutMultiplier = 0;
             elements.plane.style.bottom = '0';
             
-            // More unpredictable crash points (no warning signs)
-            crashPoint = 1.0 + Math.pow(Math.random(), 3) * 49; // 1x to 50x range with higher probability for lower multipliers
+            crashPoint = 1.0 + Math.pow(Math.random(), 3) * 49; 
             
             elements.gameContainer.style.display = 'flex';
             elements.placeBetBtn.disabled = true;
@@ -637,10 +631,8 @@
             
             elements.multiplierDisplay.textContent = currentMultiplier.toFixed(2) + 'x';
             
-            // No warning signs - multiplier stays yellow until crash
             elements.multiplierDisplay.style.color = 'var(--warning)';
             
-            // Check auto cashout
             if (autoCashoutValue > 0 && currentMultiplier >= autoCashoutValue) {
                 cashout();
                 return;
@@ -661,7 +653,6 @@
             clearInterval(gameInterval);
             gameActive = false;
             
-            // Stop background audio
             elements.backgroundAudio.pause();
             
             const winnings = manualCashout ? Math.floor(betAmount * cashoutMultiplier) : 0;
@@ -676,7 +667,7 @@
                 }
                 
                 userState.updateCoins(winnings);
-                userState.updatePoints(20); // 20 points per win
+                userState.updatePoints(50); 
                 elements.statusDisplay.innerHTML = `Cashed out at <span style="color:var(--success)">${cashoutMultiplier.toFixed(2)}x</span>! Won ${winnings} Voltz`;
                 showToast(`Cashed out at ${cashoutMultiplier.toFixed(2)}x!`, 'success');
                 
@@ -706,7 +697,6 @@
                 });
             }
             
-            // Keep only last 10 results
             if (stats.lastResults.length > 10) {
                 stats.lastResults = stats.lastResults.slice(-10);
             }
@@ -716,7 +706,6 @@
             updateUserInfo();
             loadHistory();
             
-            // Auto-reset after 2 seconds
             setTimeout(resetGame, 2000);
         }
 
