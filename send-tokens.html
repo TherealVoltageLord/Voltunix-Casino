@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltunix Casino | Send Tokens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e00ff;
+            --primary-light: #8e2bff;
+            --secondary: #ff00a8;
+            --secondary-light: #ff2bbd;
+            --dark: #1a1a2e;
+            --darker: #121223;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --danger: #dc3545;
+            --warning: #fdcb6e;
+            --card-bg: rgba(30, 30, 50, 0.85);
+            --text-primary: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--darker);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .username {
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .balance-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .balance-display i {
+            color: var(--warning);
+        }
+
+        .balance-amount {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(110, 0, 255, 0.2);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 0, 255, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-list {
+            margin-top: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            position: relative;
+        }
+
+        .user-item {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-item-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-item-name {
+            font-weight: 500;
+        }
+
+        .user-item.selected {
+            background: rgba(110, 0, 255, 0.2);
+        }
+
+        .transaction-history {
+            margin-top: 2rem;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .transaction-icon.sent {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+        }
+
+        .transaction-icon.received {
+            background: rgba(0, 184, 148, 0.2);
+            color: var(--success);
+        }
+
+        .transaction-info h4 {
+            margin-bottom: 3px;
+        }
+
+        .transaction-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+        }
+
+        .transaction-amount.sent {
+            color: var(--danger);
+        }
+
+        .transaction-amount.received {
+            color: var(--success);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .new-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 10px;
+        }
+
+        .modal-header i {
+            font-size: 1.5rem;
+            color: var(--warning);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .highlight {
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        .recipient-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(110, 0, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        .recipient-badge-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .recipient-badge-remove {
+            margin-left: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .recipient-badge-remove:hover {
+            opacity: 1;
+        }
+
+        .error-text {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+
+            .transaction-filters {
+                margin-top: 1rem;
+            }
+
+            .transaction-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" id="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Voltunix Casino</span>
+        </div>
+        <div class="user-profile">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <span class="username" id="username">Username</span>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-paper-plane"></i> Send Tokens</h1>
+            <button class="back-btn" id="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="balance-display">
+                <i class="fas fa-coins"></i>
+                <span>Your Balance:</span>
+                <span class="balance-amount" id="user-balance">0</span>
+                <span>Voltz</span>
+            </div>
+
+            <form id="send-tokens-form">
+                <div class="form-group">
+                    <label for="recipient">Recipient</label>
+                    <input type="text" id="recipient" class="form-control" placeholder="Search username..." autocomplete="off">
+                    <div id="recipient-selected" style="display: none;"></div>
+                    <div class="user-list" id="user-list" style="display: none;"></div>
+                    <div id="recipient-error" class="error-text"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (Voltz)</label>
+                    <input type="number" id="amount" class="form-control" min="1" placeholder="Enter amount to send">
+                    <div id="amount-error" class="error-text"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message (Optional)</label>
+                    <textarea id="message" class="form-control" rows="3" placeholder="Add a message..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="send-btn">
+                    <i class="fas fa-paper-plane"></i> Send Tokens
+                </button>
+            </form>
+        </div>
+
+        <div class="card transaction-history">
+            <div class="transaction-header">
+                <h3><i class="fas fa-history"></i> Transaction History</h3>
+                <div class="transaction-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="sent">Sent</button>
+                    <button class="filter-btn" data-filter="received">Received</button>
+                </div>
+            </div>
+            <div id="transactions-container">
+                <!-- Transactions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <i class="fas fa-question-circle"></i>
+                <h3>Confirm Transaction</h3>
+            </div>
+            <div class="modal-body" id="confirm-modal-body">
+                Are you sure you want to send <span class="highlight">0 Voltz</span> to <span class="highlight">User</span>?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-transaction">Cancel</button>
+                <button class="btn btn-primary" id="confirm-transaction">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * UserState class - Manages user data and transactions
+         */
+        class UserState {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('voltx_users')) || [];
+                this.currentUser = null;
+                this.transactions = JSON.parse(localStorage.getItem('voltx_transactions')) || [];
+                this.loadCurrentUser();
+            }
+
+            /**
+             * Load the current user from localStorage
+             */
+            loadCurrentUser() {
+                const userData = localStorage.getItem('voltx_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    
+                    const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {...this.users[userIndex], ...this.currentUser};
+                        this.saveAllUsers();
+                    }
+                }
+            }
+
+            /**
+             * Save all users to localStorage
+             */
+            saveAllUsers() {
+                localStorage.setItem('voltx_users', JSON.stringify(this.users));
+            }
+
+            /**
+             * Update a user's coin balance
+             * @param {string} userId - The user ID
+             * @param {number} amount - Amount to add (positive) or subtract (negative)
+             * @returns {number} - The new balance
+             */
+            updateCoins(userId, amount) {
+                const userIndex = this.users.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    this.users[userIndex].coins += amount;
+                    
+                    if (userId === this.currentUser.id) {
+                        this.currentUser.coins += amount;
+                        localStorage.setItem('voltx_currentUser', JSON.stringify(this.currentUser));
+                    }
+                    
+                    this.saveAllUsers();
+                    return this.users[userIndex].coins;
+                }
+                return 0;
+            }
+
+            /**
+             * Send tokens from current user to another user
+             * @param {string} recipientId - Recipient user ID
+             * @param {number} amount - Amount to send
+             * @param {string} message - Optional message
+             * @returns {object} - Result of the transaction
+             */
+            sendTokens(recipientId, amount, message = '') {
+                if (!this.currentUser) {
+                    return { success: false, message: "Not logged in" };
+                }
+                
+                if (this.currentUser.id === recipientId) {
+                    return { success: false, message: "You cannot send tokens to yourself" };
+                }
+                
+                if (amount <= 0) {
+                    return { success: false, message: "Amount must be greater than 0" };
+                }
+                
+                if (this.currentUser.coins < amount) {
+                    return { success: false, message: "Insufficient balance" };
+                }
+                
+                const recipientIndex = this.users.findIndex(u => u.id === recipientId);
+                if (recipientIndex === -1) {
+                    return { success: false, message: "Recipient not found" };
+                }
+                
+                // Deduct from sender
+                this.updateCoins(this.currentUser.id, -amount);
+                
+                // Add to recipient
+                this.updateCoins(recipientId, amount);
+                
+                // Record transaction
+                const transaction = {
+                    id: Date.now().toString(),
+                    senderId: this.currentUser.id,
+                    senderName: this.currentUser.username,
+                    recipientId: recipientId,
+                    recipientName: this.users[recipientIndex].username,
+                    amount: amount,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                };
+                
+                this.transactions.push(transaction);
+                localStorage.setItem('voltx_transactions', JSON.stringify(this.transactions));
+                
+                return { 
+                    success: true, 
+                    message: `Successfully sent ${amount} Voltz to ${this.users[recipientIndex].username}`,
+                    transaction: transaction
+                };
+            }
+
+            /**
+             * Get transactions for the current user
+             * @param {string} filter - Filter type: 'all', 'sent', or 'received'
+             * @returns {Array} - Filtered transactions
+             */
+            getUserTransactions(filter = 'all') {
+                if (!this.currentUser) return [];
+                
+                let filteredTransactions = this.transactions.filter(t => {
+                    if (filter === 'sent') {
+                        return t.senderId === this.currentUser.id;
+                    } else if (filter === 'received') {
+                        return t.recipientId === this.currentUser.id;
+                    } else {
+                        return t.senderId === this.currentUser.id || t.recipientId === this.currentUser.id;
+                    }
+                });
+                
+                return filteredTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }
+
+            /**
+             * Search for users by username
+             * @param {string} query - Search query
+             * @returns {Array} - Matching users
+             */
+            searchUsers(query) {
+                if (!query) return [];
+                query = query.toLowerCase();
+                
+                return this.users
+                    .filter(u => u.id !== this.currentUser.id && u.username.toLowerCase().includes(query))
+                    .slice(0, 5);
+            }
+
+            /**
+             * Get a user by ID
+             * @param {string} userId - User ID
+             * @returns {object|null} - User object or null if not found
+             */
+            getUserById(userId) {
+                return this.users.find(u => u.id === userId) || null;
+            }
+
+            /**
+             * Logout the current user
+             * @returns {boolean} - Success status
+             */
+            logout() {
+                localStorage.removeItem('voltx_currentUser');
+                this.currentUser = null;
+                return true;
+            }
+        }
+
+        /**
+         * Show a toast notification
+         * @param {string} message - Message to display
+         * @param {string} type - Notification type: 'info', 'success', or 'error'
+         */
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.backgroundColor = 'var(--success)';
+            else if (type === 'error') toast.style.backgroundColor = 'var(--danger)';
+            else toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        /**
+         * SendTokensUI class - Manages the UI for sending tokens
+         */
+        class SendTokensUI {
+            constructor(userState) {
+                this.userState = userState;
+                this.selectedRecipient = null;
+                this.currentFilter = 'all';
+                this.initElements();
+                this.bindEvents();
+                this.updateUI();
+            }
+
+            /**
+             * Initialize UI elements
+             */
+            initElements() {
+                this.elements = {
+                    userAvatar: document.getElementById('user-avatar'),
+                    username: document.getElementById('username'),
+                    userBalance: document.getElementById('user-balance'),
+                    logoutBtn: document.getElementById('logout-btn'),
+                    backBtn: document.getElementById('back-btn'),
+                    
+                    sendTokensForm: document.getElementById('send-tokens-form'),
+                    recipientInput: document.getElementById('recipient'),
+                    recipientSelected: document.getElementById('recipient-selected'),
+                    recipientError: document.getElementById('recipient-error'),
+                    amountInput: document.getElementById('amount'),
+                    amountError: document.getElementById('amount-error'),
+                    messageInput: document.getElementById('message'),
+                    sendBtn: document.getElementById('send-btn'),
+                    
+                    userList: document.getElementById('user-list'),
+                    transactionsContainer: document.getElementById('transactions-container'),
+                    
+                    confirmModal: document.getElementById('confirm-modal'),
+                    confirmModalBody: document.getElementById('confirm-modal-body'),
+                    confirmTransaction: document.getElementById('confirm-transaction'),
+                    cancelTransaction: document.getElementById('cancel-transaction'),
+                    
+                    filterButtons: document.querySelectorAll('.filter-btn'),
+                    
+                    toast: document.getElementById('toast')
+                };
+            }
+
+            /**
+             * Bind event listeners
+             */
+            bindEvents() {
+                this.elements.logoutBtn.addEventListener('click', () => this.handleLogout());
+                this.elements.backBtn.addEventListener('click', () => window.location.href = 'dashboard.html');
+                
+                this.elements.sendTokensForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.validateAndShowConfirmation();
+                });
+                
+                this.elements.recipientInput.addEventListener('input', () => this.handleRecipientSearch());
+                this.elements.recipientInput.addEventListener('focus', () => {
+                    if (this.elements.recipientInput.value && !this.selectedRecipient) {
+                        this.handleRecipientSearch();
+                    }
+                });
+                
+                this.elements.amountInput.addEventListener('input', () => {
+                    this.validateAmount();
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!this.elements.recipientInput.contains(e.target) && 
+                        !this.elements.userList.contains(e.target) &&
+                        !this.elements.recipientSelected.contains(e.target)) {
+                        this.elements.userList.style.display = 'none';
+                    }
+                });
+                
+                this.elements.confirmTransaction.addEventListener('click', () => {
+                    this.handleSendTokens();
+                    this.hideConfirmModal();
+                });
+                
+                this.elements.cancelTransaction.addEventListener('click', () => {
+                    this.hideConfirmModal();
+                });
+                
+                this.elements.filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.elements.filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentFilter = button.dataset.filter;
+                        this.renderTransactions();
+                    });
+                });
+                
+                document.getElementById('logo').addEventListener('click', () => {
+                    window.location.href = 'dashboard.html';
+                });
+            }
+
+            /**
+             * Update the UI with current user data
+             */
+            updateUI() {
+                if (!this.userState.currentUser) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                const user = this.userState.currentUser;
+                
+                this.elements.userAvatar.textContent = user.username.charAt(0).toUpperCase();
+                this.elements.username.textContent = user.username;
+                this.elements.userBalance.textContent = user.coins.toLocaleString();
+                
+                this.renderTransactions();
+            }
+
+            /**
+             * Render transactions based on the current filter
+             */
+            renderTransactions() {
+                const transactions = this.userState.getUserTransactions(this.currentFilter);
+                this.elements.transactionsContainer.innerHTML = '';
+                
+                if (transactions.length === 0) {
+                    this.elements.transactionsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <p>No transactions found</p>
+                            <p class="text-secondary">Your transaction history will appear here</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                transactions.slice(0, 10).forEach(transaction => {
+                    const isSender = transaction.senderId === this.userState.currentUser.id;
+                    const transactionElement = document.createElement('div');
+                    transactionElement.className = 'transaction-item';
+                    
+                    const formattedDate = new Date(transaction.timestamp).toLocaleString();
+                    
+                    transactionElement.innerHTML = `
+                        <div class="transaction-details">
+                            <div class="transaction-icon ${isSender ? 'sent' : 'received'}">
+                                <i class="fas ${isSender ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${isSender ? 'Sent to' : 'Received from'} ${isSender ? transaction.recipientName : transaction.senderName}</h4>
+                                <div class="transaction-date">${formattedDate}</div>
+                                ${transaction.message ? `<div style="margin-top: 5px; font-style: italic;">"${transaction.message}"</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${isSender ? 'sent' : 'received'}">
+                            ${isSender ? '-' : '+'} ${transaction.amount.toLocaleString()} Voltz
+                        </div>
+                    `;
+                    
+                    this.elements.transactionsContainer.appendChild(transactionElement);
+                });
+            }
+
+            /**
+             * Handle recipient search
+             */
+            handleRecipientSearch() {
+                if (this.selectedRecipient) {
+                    return;
+                }
+                
+                const query = this.elements.recipientInput.value.trim();
+                
+                if (query.length < 2) {
+                    this.elements.userList.style.display = 'none';
+                    return;
+                }
+                
+                const users = this.userState.searchUsers(query);
+                this.elements.userList.innerHTML = '';
+                
+                if (users.length === 0) {
+                    this.elements.userList.innerHTML = `
+                        <div style="padding: 10px; text-align: center; color: var(--text-secondary);">
+                            No users found
+                        </div>
+                    `;
+                } else {
+                    users.forEach(user => {
+                        const userItem = document.createElement('div');
+                        userItem.className = 'user-item';
+                        
+                        userItem.innerHTML = `
+                            <div class="user-item-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                            <div class="user-item-name">${user.username}</div>
+                        `;
+                        
+                        userItem.addEventListener('click', () => {
+                            this.selectRecipient(user);
+                        });
+                        
+                        this.elements.userList.appendChild(userItem);
+                    });
+                }
+                
+                this.elements.userList.style.display = 'block';
+            }
+
+            /**
+             * Select a recipient
+             * @param {object} user - User object
+             */
+            selectRecipient(user) {
+                this.selectedRecipient = user;
+                this.elements.recipientInput.value = '';
+                this.elements.userList.style.display = 'none';
+                this.elements.recipientError.textContent = '';
+                
+                this.elements.recipientSelected.innerHTML = `
+                    <div class="recipient-badge">
+                        <div class="recipient-badge-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <span>${user.username}</span>
+                        <i class="fas fa-times recipient-badge-remove" id="remove-recipient"></i>
+                    </div>
+                `;
+                this.elements.recipientSelected.style.display = 'block';
+                
+                document.getElementById('remove-recipient').addEventListener('click', () => {
+                    this.selectedRecipient = null;
+                    this.elements.recipientSelected.style.display = 'none';
+                    this.elements.recipientInput.focus();
+                });
+            }
+
+            /**
+             * Validate amount input
+             * @returns {boolean} - Is amount valid
+             */
+            validateAmount() {
+                const amount = parseInt(this.elements.amountInput.value);
+                this.elements.amountError.textContent = '';
+                
+                if (isNaN(amount) || amount <= 0) {
+                    this.elements.amountError.textContent = 'Please enter a valid amount';
+                    return false;
+                }
+                
+                if (amount > this.userState.currentUser.coins) {
+                    this.elements.amountError.textContent = 'Insufficient balance';
+                    return false;
+                }
+                
+                return true;
+            }
+
+            /**
+             * Validate form and show confirmation modal
+             */
+            validateAndShowConfirmation() {
+                // Validate recipient
+                if (!this.selectedRecipient) {
+                    this.elements.recipientError.textContent = 'Please select a recipient';
+                    return;
+                }
+                
+                // Validate amount
+                if (!this.validateAmount()) {
+                    return;
+                }
+                
+                const amount = parseInt(this.elements.amountInput.value);
+                
+                // Show confirmation modal
+                this.elements.confirmModalBody.innerHTML = `
+                    Are you sure you want to send <span class="highlight">${amount.toLocaleString()} Voltz</span> 
+                    to <span class="highlight">${this.selectedRecipient.username}</span>?
+                    ${this.elements.messageInput.value ? `<p style="margin-top: 10px;">Message: "${this.elements.messageInput.value}"</p>` : ''}
+                `;
+                
+                this.showConfirmModal();
+            }
+
+            /**
+             * Show confirmation modal
+             */
+            showConfirmModal() {
+                this.elements.confirmModal.classList.add('active');
+            }
+
+            /**
+             * Hide confirmation modal
+             */
+            hideConfirmModal() {
+                this.elements.confirmModal.classList.remove('active');
+            }
+
+            /**
+             * Handle sending tokens
+             */
+            handleSendTokens() {
+                const amount = parseInt(this.elements.amountInput.value);
+                const message = this.elements.messageInput.value.trim();
+                
+                const result = this.userState.sendTokens(
+                    this.selectedRecipient.id,
+                    amount,
+                    message
+                );
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    this.elements.amountInput.value = '';
+                    this.elements.messageInput.value = '';
+                    this.selectedRecipient = null;
+                    this.elements.recipientSelected.style.display = 'none';
+                    this.updateUI();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            }
+
+            /**
+             * Handle logout
+             */
+            handleLogout() {
+                this.userState.logout();
+                showToast('Logged out successfully');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userState = new UserState();
+            const ui = new SendTokensUI(userState);
+            
+            window.Voltunix = {
+                userState,
+                ui
+            };
+        });
+    </script>
+</body>
+</html>
